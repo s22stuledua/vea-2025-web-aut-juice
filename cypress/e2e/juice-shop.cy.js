@@ -1,4 +1,15 @@
 import { HomePage } from "../pageObjects/HomePage";
+import { LoginPage } from "../pageObjects/LoginPage";
+import { RegistrationPage } from "../pageObjects/RegistrationPage";
+import { BasketPage } from "../pageObjects/BasketPage";
+import { SelectAddressPage } from "../pageObjects/SelectAddressPage";
+import { DeliveryMethodPage } from "../pageObjects/DeliveryMethodPage";
+import { PaymentOptionsPage } from "../pageObjects/PaymentOptionsPage";
+import { OrderSummaryPage } from "../pageObjects/OrderSummaryPage";
+import { OrderCompletionPage } from "../pageObjects/OrderCompletionPage";
+import { SavedAddressesPage } from "../pageObjects/SavedAddressesPage";
+import { CreateAddressPage } from "../pageObjects/CreateAddressPage";
+import { SavedPaymentMethodsPage } from "../pageObjects/SavedPaymentMethodsPage";
 
 describe("Juice-shop scenarios", () => {
   context("Without auto login", () => {
@@ -9,32 +20,34 @@ describe("Juice-shop scenarios", () => {
     });
 
     it("Login", () => {
-      // Click Account button
-      // Click Login button
-      // Set email value to "demo"
-      // Set password value to "demo"
-      // Click Log in
-      // Click Account button
-      // Validate that "demo" account name appears in the menu section
+      HomePage.accountButton.click();
+      HomePage.loginButton.click();
+      LoginPage.emailField.type("demo");
+      LoginPage.passwordField.type("demo");
+      LoginPage.loginButton.click();
+      HomePage.accountButton.click();
+      HomePage.userProfileMenuButton.should("contain.text", "demo");
     });
 
     it("Registration", () => {
-      // Click Account button
-      // Login button
-      // Click "Not yet a customer?"
-      // Find - how to generate random number in JS
-      // Use that number to genarate unique email address, e.g.: email_7584@ebox.com
-      // Save that email address to some variable
-      // Fill in password field and repeat password field with same password
-      // Click on Security Question menu
-      // Select  "Name of your favorite pet?"
-      // Fill in answer
-      // Click Register button
-      // Set email value to previously created email
-      // Set password value to previously used password value
-      // Click login button
-      // Click Account button
-      // Validate that account name (with previously created email address) appears in the menu section
+      HomePage.accountButton.click();
+      HomePage.loginButton.click();
+      LoginPage.notYetCustomerLink.click();
+      const emailNumber = Math.floor(Math.random() * 101);
+      const email = "email_" + emailNumber.toString() + "@ebox.com";
+      const password = "randomPassword123#";
+      RegistrationPage.emailField.type(email);
+      RegistrationPage.passwordField.type(password);
+      RegistrationPage.repeatPasswordField.type(password);
+      RegistrationPage.securityQuestionField.click();
+      RegistrationPage.menuOptions.contains("Your favorite book?").click();
+      RegistrationPage.answerField.type("ABC123");
+      RegistrationPage.registerButton.click();
+      LoginPage.emailField.type(email);
+      LoginPage.passwordField.type(password);
+      LoginPage.loginButton.click();
+      HomePage.accountButton.click();
+      HomePage.userProfileMenuButton.should("contain.text", email);
     });
   });
 
@@ -45,96 +58,108 @@ describe("Juice-shop scenarios", () => {
     });
 
     it("Search and validate Lemon", () => {
-      // Click on search icon
-      // Search for Lemon
-      // Select a product card - Lemon Juice (500ml)
-      // Validate that the card (should) contains "Sour but full of vitamins."
+      HomePage.searchIcon.click();
+      HomePage.searchField.type("Lemon{enter}");
+      HomePage.productBox.contains("Lemon Juice (500ml)").click();
+      HomePage.productBoxContent.should("contain.text", "Sour but full of vitamins.");
     });
 
-    // Create scenario - Search 500ml and validate Lemon, while having multiple cards
-    // Click on search icon
-    // Search for 500ml
-    // Select a product card - Lemon Juice (500ml)
-    // Validate that the card (should) contains "Sour but full of vitamins."
+    it("Search 500ml and validate Lemon, while having multiple cards", () => {
+      HomePage.searchIcon.click();
+      HomePage.searchField.type("500ml{enter}");
+      HomePage.productBox.contains("Lemon Juice (500ml)").click();
+      HomePage.productBoxContent.should("contain.text", "Sour but full of vitamins.");
+    });
 
-    // Create scenario - Search 500ml and validate cards
-    // Click on search icon
-    // Search for 500ml
-    // Select a product card - Eggfruit Juice (500ml)
-    // Validate that the card (should) contains "Now with even more exotic flavour."
-    // Close the card
-    // Select a product card - Lemon Juice (500ml)
-    // Validate that the card (should) contains "Sour but full of vitamins."
-    // Close the card
-    // Select a product card - Strawberry Juice (500ml)
-    // Validate that the card (should) contains "Sweet & tasty!"
+    it("Search 500ml and validate cards", () => {
+      HomePage.searchIcon.click();
+      HomePage.searchField.type("500ml{enter}");
+      HomePage.productBox.contains("Eggfruit Juice (500ml)").click();
+      HomePage.productBoxContent.should("contain.text", "Now with even more exotic flavour.");
+      HomePage.productCloseButton.click();
+      HomePage.searchIcon.click();
+      HomePage.productBox.contains("Lemon Juice (500ml)").click();
+      HomePage.productBoxContent.should("contain.text", "Sour but full of vitamins.");
+      HomePage.productCloseButton.click();
+      HomePage.searchIcon.click();
+      HomePage.productBox.contains("Strawberry Juice (500ml)").click();
+      HomePage.productBoxContent.should("contain.text", "Sweet & tasty!");
+    });
 
-    // Create scenario - Read a review
-    // Click on search icon
-    // Search for King
-    // Select a product card - OWASP Juice Shop "King of the Hill" Facemask
-    // Click expand reviews button/icon (wait for reviews to appear)
-    // Validate review - K33p5 y0ur ju1cy 5plu773r 70 y0ur53lf!
+    it("Read a review", () => {
+      HomePage.searchIcon.click();
+      HomePage.searchField.type("King{enter}");
+      HomePage.productBox.contains("OWASP Juice Shop \"King of the Hill\" Facemask").click();
+      HomePage.reviewsButton.click();
+      HomePage.productBoxContent.should("contain.text", "K33p5 y0ur ju1cy 5plu773r 70 y0ur53lf!");
+    });
 
-    // Create scenario - Add a review
-    // Click on search icon
-    // Search for Raspberry
-    // Select a product card - Raspberry Juice (1000ml)
-    // Type in review - "Tastes like metal"
-    // Click Submit
-    // Click expand reviews button/icon (wait for reviews to appear)
-    // Validate review -  "Tastes like metal"
+    it("Add a review", () => {
+      HomePage.searchIcon.click();
+      HomePage.searchField.type("Raspberry{enter}");
+      HomePage.productBox.contains("Raspberry Juice (1000ml)").click();
+      HomePage.typeInReview.click().type("Tastes like metal");
+      HomePage.submitButton.click();
+      HomePage.reviewsButton.click();
+      HomePage.productBoxContent.should("contain.text", "Tastes like metal")
+    });
 
-    // Create scenario - Validate product card amount
-    // Validate that the default amount of cards is 12
-    // Change items per page (at the bottom of page) to 24
-    // Validate that the amount of cards is 24
-    // Change items per page (at the bottom of page) to 36
-    // Validate that the amount of cards is 35
+    it("Validate product card amount", () => {
+      HomePage.productBox.should("have.length", 12);
+      HomePage.matSelect.click();
+      HomePage.matOption.contains("24").click();
+      HomePage.productBox.should("have.length", 24);
+      HomePage.matSelect.click();
+      HomePage.matOption.contains("36").click();
+      HomePage.productBox.should("have.length", 36);
+    });
 
-    // Create scenario - Buy Girlie T-shirt
-    // Click on search icon
-    // Search for Girlie
-    // Add to basket "Girlie"
-    // Click on "Your Basket" button
-    // Create page object - BasketPage
-    // Click on "Checkout" button
-    // Create page object - SelectAddressPage
-    // Select address containing "United Fakedom"
-    // Click Continue button
-    // Create page object - DeliveryMethodPage
-    // Select delivery speed Standard Delivery
-    // Click Continue button
-    // Create page object - PaymentOptionsPage
-    // Select card that ends with "5678"
-    // Click Continue button
-    // Create page object - OrderSummaryPage
-    // Click on "Place your order and pay"
-    // Create page object - OrderCompletionPage
-    // Validate confirmation - "Thank you for your purchase!"
+    it("Buy Girlie T-shirt", () => {
+      HomePage.searchIcon.click();
+      HomePage.searchField.type("Girlie{enter}");
+      HomePage.addToBasket.click();
+      HomePage.basketButton.click();
+      BasketPage.checkoutButton.click();
+      SelectAddressPage.selectAddreses.contains("United Fakedom").click();
+      SelectAddressPage.continueButton.click();
+      DeliveryMethodPage.deliveryOptions.contains("Standard Delivery").click();
+      DeliveryMethodPage.continueButton.click();
+      PaymentOptionsPage.paymentOptions.contains("************5678").parent().find(".mat-mdc-radio-button").click();
+      PaymentOptionsPage.continueButton.click();
+      OrderSummaryPage.placeYourOrderAndPay.click();
+      OrderCompletionPage.confirmation.should("contain.text", "Thank you for your purchase!")
+    });
 
-    // Create scenario - Add address
-    // Click on Account
-    // Click on Orders & Payment
-    // Click on My saved addresses
-    // Create page object - SavedAddressesPage
-    // Click on Add New Address
-    // Create page object - CreateAddressPage
-    // Fill in the necessary information
-    // Click Submit button
-    // Validate that previously added address is visible
+    it("Add address", () => {
+      HomePage.accountButton.click();
+      HomePage.ordersAndPayment.click();
+      HomePage.savedAddresses.click();
+      SavedAddressesPage.addANewAdressButton.click();
+      CreateAddressPage.addCountry.type("India");
+      CreateAddressPage.addName.type("Homeworkenjoyer");
+      CreateAddressPage.addMobileNumber.type("12345678");
+      CreateAddressPage.addZipCode.type("6666");
+      CreateAddressPage.addAddress.type("Somewhere in india");
+      CreateAddressPage.addCity.type("New Delhi");
+      CreateAddressPage.addState.type("Delhi");
+      CreateAddressPage.submitButton.click();
+      SavedAddressesPage.checkAddress.should("contain.text", "Somewhere in india");
+    });
 
-    // Create scenario - Add payment option
-    // Click on Account
-    // Click on Orders & Payment
-    // Click on My payment options
-    // Create page object - SavedPaymentMethodsPage
-    // Click Add new card
-    // Fill in Name
-    // Fill in Card Number
-    // Set expiry month to 7
-    // Set expiry year to 2090
-    // Click Submit button
-    // Validate that the card shows up in the list
+    it("Add payment option", () => {
+      HomePage.accountButton.click();
+      HomePage.ordersAndPayment.click();
+      HomePage.savedPayments.click();
+      SavedPaymentMethodsPage.addNewCard.click();
+      SavedPaymentMethodsPage.fillInName.click().type("Great name");
+      SavedPaymentMethodsPage.fillInCardNumber.click().type("1234567890123456");
+      SavedPaymentMethodsPage.setMonth.select("7");
+      SavedPaymentMethodsPage.setYear.select("2090");
+      SavedPaymentMethodsPage.submitButton.click();
+      HomePage.accountButton.click();
+      HomePage.ordersAndPayment.click();
+      HomePage.savedPayments.click();
+      SavedPaymentMethodsPage.cardsList.should("contain.text", "3456");
+    });
   });
 });
